@@ -1,0 +1,42 @@
+version: '3.9'
+services:
+  frontend:
+    container_name: app_frontend
+    build: ./frontend
+    ports:
+      - 3000:3000
+    working_dir: /app-frontend
+    restart: 'always'
+    depends_on:
+      - backend
+  backend:
+    container_name: app_backend
+    build: ./backend
+    tty: true
+    stdin_open: true
+    command: bash
+    restart: 'always'
+    ports:
+      - 3001:3001
+    working_dir: /app-backend
+    volumes: 
+      - ./backend/src:/app-backend/src
+    depends_on:
+      - db
+    environment:
+      - APP_PORT=3001
+      - JWT_SECRET=jwt_secret
+      - DB_USER=postgres
+      - DB_PASS=123456
+      - DB_HOST=db
+      - DB_PORT=5432
+  db:
+    image: postgres:latest
+    container_name: db
+    ports:
+      - 3002:5432
+    environment:
+      - POSTGRES_PASSWORD=123456
+    restart: 'always'
+    cap_add:
+      - SYS_NICE # Deve omitir alertas menores
